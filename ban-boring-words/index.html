@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ban Boring Words</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #4f5d75;
+      --paper: #fffaf0;
+      --white: #ffffff;
+      --teal: #0f8b8d;
+      --teal-dark: #096365;
+      --coral: #ff6b5f;
+      --coral-dark: #d94c44;
+      --gold: #ffd166;
+      --green: #4caf7d;
+      --blue: #3d7eff;
+      --lavender: #8e6dd8;
+      --shadow: 0 16px 36px rgba(23, 32, 51, 0.16);
+      --soft-shadow: 0 8px 20px rgba(23, 32, 51, 0.12);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--paper);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 12%, rgba(255, 209, 102, 0.38) 0 14%, transparent 15%),
+        radial-gradient(circle at 88% 18%, rgba(15, 139, 141, 0.18) 0 11%, transparent 12%),
+        linear-gradient(135deg, #fffaf0 0%, #f3fbff 54%, #fff1ef 100%);
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .app {
+      width: min(1120px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: clamp(18px, 3vw, 40px);
+      display: grid;
+      align-items: center;
+    }
+
+    .screen {
+      width: 100%;
+      display: none;
+      animation: fade-slide 220ms ease-out both;
+    }
+
+    .screen.is-active {
+      display: block;
+    }
+
+    .shell,
+    .generator-layout,
+    .challenge-layout,
+    .completion-layout {
+      width: 100%;
+      display: grid;
+      gap: clamp(20px, 3vw, 32px);
+    }
+
+    .generator-layout,
+    .challenge-layout,
+    .completion-layout {
+      width: min(980px, 100%);
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .hero {
+      display: grid;
+      gap: 12px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.8rem, 8vw, 6.4rem);
+      line-height: 0.93;
+      letter-spacing: 0;
+      color: var(--ink);
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--teal-dark);
+      font-size: clamp(1.25rem, 3vw, 2rem);
+      font-weight: 800;
+    }
+
+    .explain {
+      max-width: 760px;
+      margin: 6px auto 0;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2.1vw, 1.35rem);
+      line-height: 1.45;
+      font-weight: 650;
+    }
+
+    .level-grid,
+    .activity-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(14px, 2.4vw, 24px);
+    }
+
+    .level-card,
+    .activity-card {
+      min-height: 250px;
+      padding: clamp(20px, 3vw, 30px);
+      display: grid;
+      align-content: space-between;
+      gap: 20px;
+      border-radius: 8px;
+      background: var(--white);
+      box-shadow: var(--soft-shadow);
+      border: 3px solid rgba(23, 32, 51, 0.08);
+      text-align: left;
+    }
+
+    .level-card:first-child,
+    .activity-card:first-child {
+      border-top-color: var(--teal);
+    }
+
+    .level-card:last-child,
+    .activity-card:last-child {
+      border-top-color: var(--coral);
+    }
+
+    .level-card h2,
+    .activity-card h2,
+    .completion-layout h2 {
+      margin: 0;
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .level-card p,
+    .activity-card p,
+    .completion-layout p {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+      line-height: 1.4;
+      font-weight: 650;
+    }
+
+    .word-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: clamp(12px, 2vw, 18px);
+    }
+
+    .word-button,
+    .action-button,
+    .choice-button {
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 130ms ease, box-shadow 130ms ease, background 130ms ease, border-color 130ms ease;
+    }
+
+    .word-button {
+      min-height: clamp(76px, 10vw, 108px);
+      padding: 16px 12px;
+      background: var(--white);
+      color: var(--ink);
+      box-shadow: var(--soft-shadow);
+      border: 3px solid rgba(23, 32, 51, 0.08);
+      font-size: clamp(1.25rem, 3vw, 2rem);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+    }
+
+    .word-button:nth-child(4n+1) {
+      border-top-color: var(--coral);
+    }
+
+    .word-button:nth-child(4n+2) {
+      border-top-color: var(--gold);
+    }
+
+    .word-button:nth-child(4n+3) {
+      border-top-color: var(--teal);
+    }
+
+    .word-button:nth-child(4n+4) {
+      border-top-color: var(--blue);
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .action-button {
+      min-height: 56px;
+      padding: 14px 22px;
+      background: var(--teal);
+      color: var(--white);
+      box-shadow: var(--soft-shadow);
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      font-weight: 850;
+    }
+
+    .action-button.secondary {
+      background: var(--white);
+      color: var(--teal-dark);
+      border: 3px solid rgba(15, 139, 141, 0.28);
+    }
+
+    .action-button.surprise {
+      background: var(--coral);
+    }
+
+    .action-button.challenge {
+      background: var(--lavender);
+    }
+
+    .mode-tag {
+      width: fit-content;
+      margin: 0 auto;
+      padding: 8px 14px;
+      border-radius: 8px;
+      background: rgba(255, 209, 102, 0.5);
+      color: var(--ink);
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      font-weight: 900;
+    }
+
+    .instead {
+      display: grid;
+      gap: 10px;
+    }
+
+    .label {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1.15rem, 2.5vw, 1.65rem);
+      font-weight: 800;
+    }
+
+    .selected-word {
+      width: min(620px, 100%);
+      margin: 0 auto;
+      padding: clamp(18px, 3vw, 30px);
+      border-radius: 8px;
+      background: var(--ink);
+      color: var(--gold);
+      box-shadow: var(--shadow);
+      font-size: clamp(3rem, 10vw, 7rem);
+      line-height: 0.95;
+      font-weight: 950;
+      text-transform: uppercase;
+      overflow-wrap: anywhere;
+    }
+
+    .try-label {
+      margin: 0;
+      color: var(--teal-dark);
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      font-weight: 900;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(var(--generator-count, 3), minmax(0, 1fr));
+      gap: clamp(12px, 2vw, 18px);
+      min-height: 132px;
+    }
+
+    .choice-card {
+      min-height: clamp(112px, 13vw, 152px);
+      padding: 18px;
+      display: grid;
+      place-items: center;
+      background: var(--white);
+      color: var(--ink);
+      border-radius: 8px;
+      border: 3px solid rgba(23, 32, 51, 0.08);
+      box-shadow: var(--soft-shadow);
+      font-size: clamp(1.16rem, 2.6vw, 2rem);
+      line-height: 1.12;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+      transition: transform 130ms ease, box-shadow 130ms ease;
+    }
+
+    .choice-card:nth-child(1) {
+      border-bottom-color: var(--green);
+    }
+
+    .choice-card:nth-child(2) {
+      border-bottom-color: var(--gold);
+    }
+
+    .choice-card:nth-child(3) {
+      border-bottom-color: var(--coral);
+    }
+
+    .choice-card:nth-child(4) {
+      border-bottom-color: var(--blue);
+    }
+
+    .choice-card:nth-child(5) {
+      border-bottom-color: var(--lavender);
+    }
+
+    .sentence-panel,
+    .feedback-panel,
+    .completion-card {
+      padding: clamp(20px, 4vw, 34px);
+      border-radius: 8px;
+      background: var(--white);
+      border: 3px solid rgba(23, 32, 51, 0.08);
+      box-shadow: var(--soft-shadow);
+    }
+
+    .sentence-panel {
+      display: grid;
+      gap: 16px;
+      border-top-color: var(--lavender);
+    }
+
+    .round-count {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(0.98rem, 2vw, 1.15rem);
+      font-weight: 850;
+    }
+
+    .sentence {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(1.55rem, 4vw, 3.1rem);
+      line-height: 1.24;
+      font-weight: 850;
+      text-align: left;
+    }
+
+    .sentence mark,
+    .improved-sentence mark {
+      padding: 0.04em 0.16em;
+      border-radius: 6px;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+
+    .sentence mark.boring-word {
+      background: #ffe1dc;
+      color: var(--coral-dark);
+      box-shadow: inset 0 -0.12em 0 rgba(255, 107, 95, 0.35);
+    }
+
+    .sentence mark.better-word,
+    .improved-sentence mark.better-word {
+      background: #dcf7e8;
+      color: #08704f;
+      box-shadow: inset 0 -0.12em 0 rgba(76, 175, 125, 0.35);
+    }
+
+    .challenge-choices {
+      display: grid;
+      grid-template-columns: repeat(var(--challenge-count, 4), minmax(0, 1fr));
+      gap: clamp(10px, 1.8vw, 14px);
+    }
+
+    .choice-button {
+      min-height: 86px;
+      padding: 14px;
+      background: var(--white);
+      color: var(--ink);
+      border: 3px solid rgba(23, 32, 51, 0.1);
+      box-shadow: var(--soft-shadow);
+      font-size: clamp(1.02rem, 2vw, 1.4rem);
+      line-height: 1.14;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .choice-button.was-tried {
+      background: #f5f0e6;
+      color: var(--muted);
+      border-color: rgba(79, 93, 117, 0.18);
+    }
+
+    .feedback-panel {
+      display: none;
+      gap: 14px;
+      text-align: left;
+      border-top-color: var(--green);
+      animation: fade-slide 220ms ease-out both;
+    }
+
+    .feedback-panel.is-visible {
+      display: grid;
+    }
+
+    .feedback-title {
+      margin: 0;
+      color: var(--teal-dark);
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      font-weight: 950;
+    }
+
+    .improved-sentence {
+      margin: 0;
+      color: var(--ink);
+      font-size: clamp(1.35rem, 3vw, 2.2rem);
+      line-height: 1.28;
+      font-weight: 900;
+    }
+
+    .explanation {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+      line-height: 1.42;
+      font-weight: 700;
+    }
+
+    .try-again {
+      min-height: 28px;
+      margin: 0;
+      color: var(--coral-dark);
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      line-height: 1.35;
+      font-weight: 850;
+    }
+
+    .completion-card {
+      display: grid;
+      gap: 16px;
+      border-top-color: var(--green);
+      text-align: center;
+    }
+
+    .completion-card h2 {
+      color: var(--teal-dark);
+    }
+
+    .pop {
+      animation: pop-in 230ms cubic-bezier(.2, .9, .32, 1.25) both;
+    }
+
+    .pop:nth-child(2) {
+      animation-delay: 45ms;
+    }
+
+    .pop:nth-child(3) {
+      animation-delay: 90ms;
+    }
+
+    .pop:nth-child(4) {
+      animation-delay: 135ms;
+    }
+
+    .pop:nth-child(5) {
+      animation-delay: 180ms;
+    }
+
+    .word-button:hover,
+    .action-button:hover,
+    .choice-button:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
+
+    .word-button:active,
+    .action-button:active,
+    .choice-button:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 0 6px 16px rgba(23, 32, 51, 0.12);
+    }
+
+    .word-button:focus-visible,
+    .action-button:focus-visible,
+    .choice-button:focus-visible {
+      outline: 5px solid var(--gold);
+      outline-offset: 4px;
+    }
+
+    .sr-status {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @keyframes fade-slide {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pop-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @media (max-width: 1040px) {
+      .choices,
+      .challenge-choices {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 820px) {
+      .level-grid,
+      .activity-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .word-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .app {
+        align-items: start;
+      }
+
+      .word-grid,
+      .choices,
+      .challenge-choices {
+        grid-template-columns: 1fr;
+      }
+
+      .word-button {
+        min-height: 70px;
+      }
+
+      .action-button {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 1ms !important;
+        scroll-behavior: auto !important;
+        transition-duration: 1ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="screen is-active" id="level-screen" aria-labelledby="page-title">
+      <div class="shell">
+        <div class="hero">
+          <h1 id="page-title">Ban Boring Words</h1>
+          <p class="subtitle">Give tired words a vocabulary makeover!</p>
+          <p class="explain">Choose a vocabulary level to begin.</p>
+        </div>
+
+        <div class="level-grid" id="level-grid" aria-label="Choose a level"></div>
+      </div>
+    </section>
+
+    <section class="screen" id="home-screen" aria-labelledby="home-heading">
+      <div class="shell">
+        <div class="hero">
+          <p class="mode-tag" id="home-level-tag"></p>
+          <h1 id="home-heading">Ban Boring Words</h1>
+          <p class="subtitle">Give tired words a vocabulary makeover!</p>
+        </div>
+
+        <div class="activity-grid" aria-label="Choose an activity">
+          <article class="activity-card">
+            <div>
+              <h2>Find a Better Word</h2>
+              <p id="generator-description"></p>
+            </div>
+            <button class="action-button" type="button" data-action="start-generator">Find Better Words</button>
+          </article>
+
+          <article class="activity-card">
+            <div>
+              <h2>Word Choice Challenge</h2>
+              <p>Read the sentence and choose the word that fits best.</p>
+            </div>
+            <button class="action-button challenge" type="button" data-action="start-challenge">Play the Challenge</button>
+          </article>
+        </div>
+
+        <div class="action-row">
+          <button class="action-button secondary" type="button" data-action="change-level">Change Level</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="word-screen" aria-labelledby="word-heading">
+      <div class="shell">
+        <div class="hero">
+          <p class="mode-tag mode-level-tag"></p>
+          <h1 id="word-heading">Ban Boring Words</h1>
+          <p class="subtitle">Give tired words a vocabulary makeover!</p>
+          <p class="explain" id="word-screen-description"></p>
+        </div>
+
+        <div class="word-grid" id="word-grid" aria-label="Choose a boring word"></div>
+
+        <div class="action-row">
+          <button class="action-button surprise" type="button" data-action="surprise-word">🎲 Surprise Me!</button>
+          <button class="action-button secondary" type="button" data-action="home">Back to Home</button>
+          <button class="action-button secondary" type="button" data-action="change-level">Change Level</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="generator-screen" aria-labelledby="generator-heading">
+      <div class="generator-layout">
+        <p class="mode-tag mode-level-tag"></p>
+
+        <div class="instead">
+          <p class="label" id="generator-heading">Instead of...</p>
+          <div class="selected-word" id="selected-word" aria-live="polite"></div>
+        </div>
+
+        <p class="try-label">Try one of these:</p>
+
+        <div class="choices" id="choices" role="list" aria-live="polite"></div>
+
+        <div class="action-row">
+          <button class="action-button" type="button" data-action="more" id="more-button"></button>
+          <button class="action-button secondary" type="button" data-action="choose-word">Choose Another Word</button>
+          <button class="action-button surprise" type="button" data-action="surprise-generator">🎲 Surprise Me!</button>
+          <button class="action-button secondary" type="button" data-action="home">Back to Home</button>
+          <button class="action-button secondary" type="button" data-action="change-level">Change Level</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="challenge-screen" aria-labelledby="challenge-heading">
+      <div class="challenge-layout">
+        <p class="mode-tag mode-level-tag"></p>
+
+        <div class="sentence-panel">
+          <p class="round-count" id="round-count"></p>
+          <p class="sentence" id="challenge-sentence"></p>
+        </div>
+
+        <p class="try-label" id="challenge-heading">Which word fits best?</p>
+        <p class="try-again" id="try-again" aria-live="polite"></p>
+
+        <div class="challenge-choices" id="challenge-choices" aria-label="Choose the word that fits best"></div>
+
+        <div class="feedback-panel" id="feedback-panel" aria-live="polite">
+          <p class="feedback-title">Great choice!</p>
+          <p class="improved-sentence" id="improved-sentence"></p>
+          <p class="explanation" id="explanation"></p>
+          <div class="action-row">
+            <button class="action-button challenge" type="button" data-action="next-challenge">Next Challenge</button>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button class="action-button secondary" type="button" data-action="home">Back to Home</button>
+          <button class="action-button secondary" type="button" data-action="change-level">Change Level</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="completion-screen" aria-labelledby="completion-heading">
+      <div class="completion-layout">
+        <div class="completion-card">
+          <p class="mode-tag mode-level-tag"></p>
+          <h2 id="completion-heading">You banned 12 boring words!</h2>
+          <p id="completion-message"></p>
+          <div class="action-row">
+            <button class="action-button challenge" type="button" data-action="play-again">Play Again</button>
+            <button class="action-button secondary" type="button" data-action="home">Back to Home</button>
+            <button class="action-button secondary" type="button" data-action="change-level">Change Level</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="sr-status" id="status" aria-live="polite"></div>
+  </main>
+
+  <script>
+    const WORD_ORDER = ["said", "good", "bad", "happy", "nice", "sad", "like", "big", "small", "went", "eat", "run"];
+
+    const LEVELS = {
+      level1: {
+        label: "Level 1",
+        grades: "Grades 3-5",
+        tag: "Level 1 Grades 3-5",
+        generatorCount: 3,
+        generatorDescription: "Choose a tired word and discover three stronger choices.",
+        wordScreenDescription: "Choose a boring word and discover three stronger words you could use instead.",
+        moreButtonText: "🔄 Give Me 3 More",
+        incorrectFeedback: "That word could work in some situations, but another choice fits this sentence better. Try again!",
+        completionMessage: "Strong writers choose words that say exactly what they mean.",
+        wordBanks: {
+          said: ["asked", "answered", "announced", "called", "cried", "explained", "exclaimed", "groaned", "grumbled", "joked", "mentioned", "mumbled", "ordered", "replied", "remarked", "repeated", "shouted", "sighed", "spoke", "suggested", "told", "whispered", "yelled", "added", "argued", "cheered", "complained", "promised", "warned", "wondered"],
+          good: ["great", "excellent", "amazing", "awesome", "wonderful", "terrific", "fantastic", "marvelous", "lovely", "delightful", "impressive", "outstanding", "superb", "brilliant", "fabulous", "splendid", "enjoyable", "helpful", "kind", "skillful", "successful", "strong", "smart", "neat", "cool", "positive", "pleasant", "valuable", "worthy", "first-rate"],
+          bad: ["awful", "terrible", "horrible", "dreadful", "poor", "wrong", "mean", "nasty", "cruel", "harmful", "unpleasant", "disappointing", "unfair", "unkind", "messy", "weak", "rough", "rotten", "lousy", "troublesome", "hurtful", "scary", "dangerous", "unfortunate", "serious", "worse", "broken", "unfriendly", "unhelpful", "disagreeable"],
+          happy: ["cheerful", "glad", "joyful", "excited", "pleased", "delighted", "thrilled", "content", "merry", "upbeat", "smiling", "jolly", "satisfied", "proud", "hopeful", "playful", "lively", "grateful", "carefree", "overjoyed", "gleeful", "enthusiastic", "bright", "sunny", "chipper", "peaceful", "thankful", "joyous", "lighthearted", "on top of the world"],
+          nice: ["kind", "friendly", "pleasant", "thoughtful", "caring", "helpful", "polite", "sweet", "gentle", "generous", "considerate", "lovely", "cheerful", "welcoming", "warm", "respectful", "good-natured", "agreeable", "charming", "delightful", "supportive", "patient", "fair", "cooperative", "encouraging", "sincere", "courteous", "approachable", "gracious", "neighborly"],
+          sad: ["unhappy", "gloomy", "upset", "down", "blue", "tearful", "sorrowful", "heartbroken", "miserable", "disappointed", "lonely", "glum", "mournful", "discouraged", "troubled", "hurt", "crushed", "weepy", "homesick", "regretful", "heavyhearted", "downhearted", "somber", "sorry", "brokenhearted", "grief-stricken", "low-spirited", "down in the dumps", "feeling low", "woeful"],
+          like: ["enjoy", "love", "admire", "appreciate", "prefer", "favor", "treasure", "value", "adore", "be fond of", "care for", "take pleasure in", "be interested in", "be excited about", "be a fan of", "go for", "choose", "pick", "want", "enjoy having", "enjoy doing", "feel good about", "have fun with", "be pleased with", "be happy with", "think highly of", "be drawn to", "find fun", "find enjoyable", "really enjoy"],
+          big: ["large", "huge", "giant", "enormous", "gigantic", "massive", "mighty", "oversized", "hefty", "broad", "wide", "tall", "towering", "tremendous", "jumbo", "super-sized", "bulky", "grand", "vast", "major", "great", "sizable", "whopping", "mammoth", "extra-large", "roomy", "spacious", "heavy", "thick", "immense"],
+          small: ["little", "tiny", "teeny", "itty-bitty", "mini", "miniature", "short", "narrow", "thin", "compact", "petite", "wee", "slight", "pint-sized", "pocket-sized", "bitty", "shrunken", "slim", "skinny", "low", "light", "modest", "limited", "undersized", "palm-sized", "bite-sized", "microscopic", "minuscule", "small-scale", "tiny-scale"],
+          went: ["walked", "hurried", "rushed", "raced", "strolled", "marched", "skipped", "hopped", "jogged", "ran", "wandered", "traveled", "moved", "headed", "left", "dashed", "crept", "tiptoed", "climbed", "drove", "rode", "flew", "sailed", "crossed", "journeyed", "returned", "slipped", "stepped", "passed", "made their way"],
+          eat: ["munch", "chew", "nibble", "gobble", "devour", "bite", "snack", "feast", "dine", "swallow", "crunch", "chow down", "wolf down", "dig into", "polish off", "finish", "munch on", "bite into", "feast on", "snack on", "eat up", "have a bite", "grab a snack", "fill up on", "gulp down", "gobble up", "chew on", "dig in", "enjoy", "scarf down"],
+          run: ["sprint", "jog", "race", "dash", "hurry", "charge", "bolt", "scamper", "rush", "zoom", "speed", "dart", "gallop", "trot", "bound", "flee", "scurry", "hustle", "zip", "tear", "race along", "dash off", "take off", "speed away", "run quickly", "race ahead", "hurry along", "rush forward", "sprint away", "jog along"]
+        },
+        challenges: [
+          { level: "level1", category: "said", originalSentence: "Mia said, “Please don’t wake the baby.”", boringWord: "said", choices: ["whispered", "announced", "shouted", "ordered"], strongestChoice: "whispered", improvedSentence: "Mia whispered, “Please don’t wake the baby.”", explanation: "Whispered tells us that Mia spoke quietly." },
+          { level: "level1", category: "good", originalSentence: "The judges gave Ava’s science project first place because it was good.", boringWord: "good", choices: ["excellent", "helpful", "neat", "pleasant"], strongestChoice: "excellent", improvedSentence: "The judges gave Ava’s science project first place because it was excellent.", explanation: "Excellent shows that the project was much better than simply good." },
+          { level: "level1", category: "bad", originalSentence: "The spoiled milk smelled bad when Mason opened the carton.", boringWord: "bad", choices: ["awful", "unfair", "weak", "unfriendly"], strongestChoice: "awful", improvedSentence: "The spoiled milk smelled awful when Mason opened the carton.", explanation: "Awful gives us a stronger idea of how unpleasant the smell was." },
+          { level: "level1", category: "happy", originalSentence: "Lila jumped up and cheered when she learned she had made the team. She was happy.", boringWord: "happy", choices: ["thrilled", "peaceful", "thankful", "satisfied"], strongestChoice: "thrilled", improvedSentence: "Lila jumped up and cheered when she learned she had made the team. She was thrilled.", explanation: "Thrilled matches Lila’s excitement and cheering." },
+          { level: "level1", category: "nice", originalSentence: "The new student looked nervous, so Eli invited him to sit with his group. Eli was nice.", boringWord: "nice", choices: ["kind", "cheerful", "patient", "fair"], strongestChoice: "kind", improvedSentence: "The new student looked nervous, so Eli invited him to sit with his group. Eli was kind.", explanation: "Kind describes Eli’s thoughtful action toward the new student." },
+          { level: "level1", category: "sad", originalSentence: "After her best friend moved away, Maya felt sad whenever she saw the empty desk.", boringWord: "sad", choices: ["lonely", "troubled", "gloomy", "weepy"], strongestChoice: "lonely", improvedSentence: "After her best friend moved away, Maya felt lonely whenever she saw the empty desk.", explanation: "Lonely explains why Maya feels sad after her friend moved away." },
+          { level: "level1", category: "like", originalSentence: "Noah keeps every comic book in a protective cover because he really likes them.", boringWord: "likes", choices: ["treasures", "wants", "enjoys", "chooses"], strongestChoice: "treasures", improvedSentence: "Noah treasures his comic books and keeps every one in a protective cover.", explanation: "Treasures shows that the comic books are especially important to Noah." },
+          { level: "level1", category: "big", originalSentence: "The elephant looked big beside the tiny mouse.", boringWord: "big", choices: ["enormous", "tall", "roomy", "heavy"], strongestChoice: "enormous", improvedSentence: "The elephant looked enormous beside the tiny mouse.", explanation: "Enormous emphasizes how large the elephant appears next to the tiny mouse." },
+          { level: "level1", category: "small", originalSentence: "The dollhouse had a small spoon that was barely longer than a fingernail.", boringWord: "small", choices: ["miniature", "narrow", "light", "short"], strongestChoice: "miniature", improvedSentence: "The dollhouse had a miniature spoon that was barely longer than a fingernail.", explanation: "Miniature tells us that the spoon is a tiny version of a real spoon." },
+          { level: "level1", category: "went", originalSentence: "Trying not to wake anyone, Carlos went down the hallway.", boringWord: "went", choices: ["tiptoed", "raced", "marched", "drove"], strongestChoice: "tiptoed", improvedSentence: "Trying not to wake anyone, Carlos tiptoed down the hallway.", explanation: "Tiptoed shows exactly how Carlos moved quietly." },
+          { level: "level1", category: "eat", originalSentence: "The squirrel sat on the fence and ate tiny bites from the cracker.", boringWord: "ate", choices: ["nibbled", "devoured", "feasted", "gobbled"], strongestChoice: "nibbled", improvedSentence: "The squirrel sat on the fence and nibbled tiny bites from the cracker.", explanation: "Nibbled tells us that the squirrel took small bites." },
+          { level: "level1", category: "run", originalSentence: "When the race began, Jalen ran toward the finish line as fast as he could.", boringWord: "ran", choices: ["sprinted", "jogged", "scurried", "trotted"], strongestChoice: "sprinted", improvedSentence: "When the race began, Jalen sprinted toward the finish line as fast as he could.", explanation: "Sprinted tells us that Jalen ran very quickly." }
+        ]
+      },
+      level2: {
+        label: "Level 2",
+        grades: "Grades 6-8",
+        tag: "Level 2 Grades 6-8",
+        generatorCount: 5,
+        generatorDescription: "Choose a tired word and explore five more precise choices.",
+        wordScreenDescription: "Choose a boring word and discover five stronger words you could use instead.",
+        moreButtonText: "🔄 Give Me 5 More",
+        incorrectFeedback: "That word could work in another situation, but another choice fits this sentence better. Try again!",
+        completionMessage: "Precise words make your writing stronger.",
+        wordBanks: {
+          said: ["asserted", "declared", "stated", "responded", "replied", "remarked", "observed", "commented", "noted", "explained", "elaborated", "clarified", "insisted", "protested", "argued", "claimed", "suggested", "proposed", "whispered", "muttered", "murmured", "grumbled", "exclaimed", "announced", "proclaimed", "admitted", "confessed", "warned", "demanded", "inquired"],
+          good: ["exceptional", "exemplary", "admirable", "beneficial", "effective", "favorable", "excellent", "impressive", "outstanding", "remarkable", "superb", "superior", "worthy", "commendable", "skillful", "capable", "reliable", "sound", "positive", "valuable", "advantageous", "successful", "accomplished", "proficient", "first-rate", "high-quality", "splendid", "stellar", "phenomenal", "virtuous"],
+          bad: ["inferior", "harmful", "damaging", "destructive", "unpleasant", "unacceptable", "inadequate", "flawed", "faulty", "poor", "dreadful", "appalling", "atrocious", "abysmal", "offensive", "cruel", "malicious", "unjust", "unfavorable", "disappointing", "troublesome", "problematic", "ineffective", "inappropriate", "corrupt", "severe", "grim", "unfortunate", "detrimental", "disastrous"],
+          happy: ["joyful", "delighted", "elated", "ecstatic", "thrilled", "cheerful", "content", "satisfied", "pleased", "jubilant", "gleeful", "merry", "upbeat", "optimistic", "enthusiastic", "grateful", "overjoyed", "radiant", "buoyant", "lighthearted", "blissful", "euphoric", "exultant", "jovial", "spirited", "encouraged", "hopeful", "fulfilled", "exhilarated", "carefree"],
+          nice: ["amiable", "pleasant", "agreeable", "considerate", "courteous", "gracious", "thoughtful", "compassionate", "kindhearted", "friendly", "congenial", "charming", "delightful", "appealing", "admirable", "respectful", "supportive", "welcoming", "generous", "tactful", "civil", "cordial", "benevolent", "good-natured", "accommodating", "approachable", "warmhearted", "neighborly", "affable", "lovely"],
+          sad: ["sorrowful", "melancholy", "gloomy", "dejected", "despondent", "discouraged", "disheartened", "miserable", "mournful", "somber", "heartbroken", "crestfallen", "glum", "woeful", "grief-stricken", "regretful", "distressed", "troubled", "downcast", "blue", "forlorn", "heavyhearted", "unhappy", "crushed", "disappointed", "lonely", "tearful", "dispirited", "anguished", "remorseful"],
+          like: ["admire", "appreciate", "enjoy", "prefer", "favor", "value", "cherish", "adore", "relish", "esteem", "prize", "treasure", "approve of", "be fond of", "be drawn to", "be partial to", "be keen on", "take pleasure in", "delight in", "have a taste for", "care for", "fancy", "embrace", "respect", "support", "gravitate toward", "be enthusiastic about", "have an affection for", "find appealing", "be interested in"],
+          big: ["enormous", "immense", "massive", "gigantic", "colossal", "vast", "mammoth", "monumental", "substantial", "considerable", "sizable", "expansive", "extensive", "towering", "tremendous", "hefty", "bulky", "grand", "major", "significant", "oversized", "hulking", "prodigious", "formidable", "imposing", "capacious", "spacious", "outsized", "giant", "sweeping"],
+          small: ["minute", "minuscule", "miniature", "compact", "petite", "tiny", "diminutive", "microscopic", "slight", "modest", "limited", "narrow", "slender", "scant", "meager", "negligible", "minor", "undersized", "pint-sized", "pocket-sized", "wee", "fractional", "infinitesimal", "reduced", "restricted", "brief", "short", "low", "sparse", "fine"],
+          went: ["proceeded", "departed", "traveled", "journeyed", "ventured", "advanced", "retreated", "returned", "headed", "moved", "trekked", "wandered", "roamed", "strolled", "marched", "hurried", "rushed", "dashed", "sprinted", "trudged", "crept", "slipped", "sauntered", "meandered", "strode", "crossed", "passed", "entered", "exited", "withdrew"],
+          eat: ["consume", "devour", "ingest", "dine", "feast", "nibble", "munch", "chew", "gobble", "savor", "sample", "snack", "wolf down", "polish off", "dig into", "chow down", "gulp", "swallow", "bite into", "crunch", "graze", "partake", "gorge", "feast on", "munch on", "tuck into", "finish", "demolish", "scarf down", "nourish"],
+          run: ["sprint", "dash", "race", "jog", "bolt", "dart", "charge", "rush", "flee", "scamper", "scurry", "hustle", "gallop", "bound", "streak", "zip", "zoom", "hurry", "lope", "trot", "scramble", "speed", "barrel", "career", "hurtle", "race ahead", "dash away", "tear off", "rush forward", "sprint onward"]
+        },
+        challenges: [
+          { level: "level2", category: "said", originalSentence: "The student said that the school should add more recycling bins and gave three reasons to support her position.", boringWord: "said", choices: ["asserted", "whispered", "muttered", "confessed", "exclaimed"], strongestChoice: "asserted", improvedSentence: "The student asserted that the school should add more recycling bins and gave three reasons to support her position.", explanation: "Asserted shows that she stated her position confidently and supported it with reasons." },
+          { level: "level2", category: "good", originalSentence: "The engineer created a good solution that reduced wasted water and cost less to maintain.", boringWord: "good", choices: ["effective", "pleasant", "admirable", "splendid", "virtuous"], strongestChoice: "effective", improvedSentence: "The engineer created an effective solution that reduced wasted water and cost less to maintain.", explanation: "Effective shows that the solution successfully accomplished its purpose." },
+          { level: "level2", category: "bad", originalSentence: "The chemical spill had a bad effect on plants and wildlife near the river.", boringWord: "bad", choices: ["detrimental", "unpleasant", "poor", "troublesome", "unfortunate"], strongestChoice: "detrimental", improvedSentence: "The chemical spill had a detrimental effect on plants and wildlife near the river.", explanation: "Detrimental specifically means causing harm or damage." },
+          { level: "level2", category: "happy", originalSentence: "After months of rehearsals, the cast received a standing ovation on opening night and felt extremely happy.", boringWord: "happy", choices: ["exhilarated", "content", "hopeful", "carefree", "pleased"], strongestChoice: "exhilarated", improvedSentence: "After months of rehearsals, the cast received a standing ovation on opening night and felt exhilarated.", explanation: "Exhilarated describes an intense feeling of excitement and happiness." },
+          { level: "level2", category: "nice", originalSentence: "Even though the debate became tense, Amira listened carefully, responded respectfully, and remained nice to the other speakers.", boringWord: "nice", choices: ["courteous", "charming", "appealing", "amiable", "lovely"], strongestChoice: "courteous", improvedSentence: "Even though the debate became tense, Amira listened carefully, responded respectfully, and remained courteous to the other speakers.", explanation: "Courteous emphasizes respectful and polite behavior toward others." },
+          { level: "level2", category: "sad", originalSentence: "After his team lost the championship in the final seconds, Marcus sat silently on the bench looking sad.", boringWord: "sad", choices: ["dejected", "remorseful", "melancholy", "lonely", "somber"], strongestChoice: "dejected", improvedSentence: "After his team lost the championship in the final seconds, Marcus sat silently on the bench looking dejected.", explanation: "Dejected describes feeling discouraged and deeply disappointed after a setback." },
+          { level: "level2", category: "like", originalSentence: "Priya spends hours studying ancient civilizations and never misses a museum exhibit about archaeology because she really likes the subject.", boringWord: "likes", choices: ["is fascinated by", "approves of", "supports", "prefers", "values"], strongestChoice: "is fascinated by", improvedSentence: "Priya spends hours studying ancient civilizations and never misses a museum exhibit about archaeology because she is fascinated by the subject.", explanation: "Is fascinated by shows a strong and continuing interest in the subject." },
+          { level: "level2", category: "big", originalSentence: "The wildfire spread across a big area of the forest before firefighters brought it under control.", boringWord: "big", choices: ["vast", "towering", "bulky", "hefty", "spacious"], strongestChoice: "vast", improvedSentence: "The wildfire spread across a vast area of the forest before firefighters brought it under control.", explanation: "Vast describes an extremely large area or amount of space." },
+          { level: "level2", category: "small", originalSentence: "The amount of salt remaining in the sample was so small that scientists needed special equipment to measure it.", boringWord: "small", choices: ["minute", "petite", "compact", "brief", "restricted"], strongestChoice: "minute", improvedSentence: "The amount of salt remaining in the sample was so minute that scientists needed special equipment to measure it.", explanation: "Minute means extremely small and fits a quantity that is difficult to measure." },
+          { level: "level2", category: "went", originalSentence: "Instead of following the marked trail, the hikers went deeper into the unfamiliar forest.", boringWord: "went", choices: ["ventured", "strolled", "returned", "passed", "exited"], strongestChoice: "ventured", improvedSentence: "Instead of following the marked trail, the hikers ventured deeper into the unfamiliar forest.", explanation: "Ventured suggests moving into an unfamiliar or possibly risky place." },
+          { level: "level2", category: "eat", originalSentence: "Rather than rushing through dinner, Elena slowly ate each bite of the chef’s carefully prepared dessert.", boringWord: "ate", choices: ["savored", "devoured", "gorged on", "gulped", "demolished"], strongestChoice: "savored", improvedSentence: "Rather than rushing through dinner, Elena slowly savored each bite of the chef’s carefully prepared dessert.", explanation: "Savored means enjoying something slowly and fully." },
+          { level: "level2", category: "run", originalSentence: "When the security alarm sounded, the suspect began to run from the building as quickly as possible.", boringWord: "run", choices: ["flee", "jog", "trot", "scamper", "lope"], strongestChoice: "flee", improvedSentence: "When the security alarm sounded, the suspect began to flee from the building as quickly as possible.", explanation: "Flee means to run away from danger, trouble, or capture." }
+        ]
+      }
+    };
+
+    const screens = {
+      level: document.querySelector("#level-screen"),
+      home: document.querySelector("#home-screen"),
+      word: document.querySelector("#word-screen"),
+      generator: document.querySelector("#generator-screen"),
+      challenge: document.querySelector("#challenge-screen"),
+      completion: document.querySelector("#completion-screen")
+    };
+    const levelGrid = document.querySelector("#level-grid");
+    const homeLevelTag = document.querySelector("#home-level-tag");
+    const modeLevelTags = document.querySelectorAll(".mode-level-tag");
+    const generatorDescription = document.querySelector("#generator-description");
+    const wordScreenDescription = document.querySelector("#word-screen-description");
+    const moreButton = document.querySelector("#more-button");
+    const wordGrid = document.querySelector("#word-grid");
+    const selectedWord = document.querySelector("#selected-word");
+    const generatorChoices = document.querySelector("#choices");
+    const status = document.querySelector("#status");
+    const roundCount = document.querySelector("#round-count");
+    const challengeSentence = document.querySelector("#challenge-sentence");
+    const challengeChoices = document.querySelector("#challenge-choices");
+    const tryAgain = document.querySelector("#try-again");
+    const feedbackPanel = document.querySelector("#feedback-panel");
+    const improvedSentence = document.querySelector("#improved-sentence");
+    const explanation = document.querySelector("#explanation");
+    const completionMessage = document.querySelector("#completion-message");
+
+    let currentLevelKey = "";
+    let currentWord = "";
+    let previousChoices = [];
+    let challengeOrder = [];
+    let challengeIndex = 0;
+    let currentChallenge = null;
+    let currentChoiceOrder = [];
+    let lastChallengeSignature = "";
+
+    function currentLevel() {
+      return LEVELS[currentLevelKey];
+    }
+
+    function shuffle(items) {
+      const shuffled = [...items];
+
+      for (let index = shuffled.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+      }
+
+      return shuffled;
+    }
+
+    function sameCombination(firstGroup, secondGroup) {
+      if (firstGroup.length !== secondGroup.length) {
+        return false;
+      }
+
+      const first = [...firstGroup].sort().join("|");
+      const second = [...secondGroup].sort().join("|");
+      return first === second;
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      })[character]);
+    }
+
+    function highlightWord(sentence, word, className) {
+      const escapedSentence = escapeHtml(sentence);
+      const escapedWord = escapeHtml(word);
+      const pattern = new RegExp(`\\b${escapedWord.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
+      return escapedSentence.replace(pattern, (match) => `<mark class="${className}">${match}</mark>`);
+    }
+
+    function showScreen(screenName) {
+      Object.entries(screens).forEach(([name, screen]) => {
+        screen.classList.toggle("is-active", name === screenName);
+      });
+    }
+
+    function updateLevelLabels() {
+      const level = currentLevel();
+      homeLevelTag.textContent = level.tag;
+      generatorDescription.textContent = level.generatorDescription;
+      wordScreenDescription.textContent = level.wordScreenDescription;
+      moreButton.textContent = level.moreButtonText;
+      completionMessage.textContent = level.completionMessage;
+      modeLevelTags.forEach((tag) => {
+        tag.textContent = `${level.tag}`;
+      });
+      generatorChoices.style.setProperty("--generator-count", level.generatorCount);
+      challengeChoices.style.setProperty("--challenge-count", level.challenges[0].choices.length);
+    }
+
+    function chooseLevel(levelKey) {
+      currentLevelKey = levelKey;
+      currentWord = "";
+      previousChoices = [];
+      currentChallenge = null;
+      updateLevelLabels();
+      buildWordButtons();
+      showScreen("home");
+      document.querySelector('[data-action="start-generator"]').focus();
+    }
+
+    function buildLevelButtons() {
+      const fragment = document.createDocumentFragment();
+
+      Object.entries(LEVELS).forEach(([levelKey, level]) => {
+        const card = document.createElement("article");
+        card.className = "level-card";
+        card.innerHTML = `
+          <div>
+            <h2>${level.label}</h2>
+            <p>${level.grades}</p>
+          </div>
+          <button class="action-button" type="button" data-level="${levelKey}">Choose ${level.label}</button>
+        `;
+        fragment.appendChild(card);
+      });
+
+      levelGrid.appendChild(fragment);
+    }
+
+    function buildWordButtons() {
+      const fragment = document.createDocumentFragment();
+      wordGrid.innerHTML = "";
+
+      WORD_ORDER.forEach((word) => {
+        const button = document.createElement("button");
+        button.className = "word-button";
+        button.type = "button";
+        button.textContent = word.toUpperCase();
+        button.dataset.word = word;
+        button.setAttribute("aria-label", `Choose ${word}`);
+        fragment.appendChild(button);
+      });
+
+      wordGrid.appendChild(fragment);
+    }
+
+    function getRandomWord(excludedWord = "") {
+      const availableWords = WORD_ORDER.filter((word) => word !== excludedWord);
+      return availableWords[Math.floor(Math.random() * availableWords.length)];
+    }
+
+    function pickGeneratorChoices(word) {
+      const level = currentLevel();
+      const bank = level.wordBanks[word];
+      const previousSet = new Set(previousChoices);
+      const nonRepeatingBank = bank.filter((choice) => !previousSet.has(choice));
+      const source = nonRepeatingBank.length >= level.generatorCount ? nonRepeatingBank : bank;
+      let picked = shuffle(source).slice(0, level.generatorCount);
+
+      for (let attempt = 0; attempt < 8 && sameCombination(picked, previousChoices); attempt += 1) {
+        picked = shuffle(source).slice(0, level.generatorCount);
+      }
+
+      return picked;
+    }
+
+    function renderGeneratorChoices(nextChoices) {
+      generatorChoices.innerHTML = "";
+
+      nextChoices.forEach((choice) => {
+        const card = document.createElement("div");
+        card.className = "choice-card pop";
+        card.setAttribute("role", "listitem");
+        card.textContent = choice;
+        generatorChoices.appendChild(card);
+      });
+
+      status.textContent = `${currentLevel().tag}. ${nextChoices.length} choices for ${currentWord}: ${nextChoices.join(", ")}.`;
+    }
+
+    function showWordScreen() {
+      currentWord = "";
+      previousChoices = [];
+      showScreen("word");
+      document.querySelector(".word-button").focus();
+    }
+
+    function showGenerator(word) {
+      currentWord = word;
+      selectedWord.textContent = word;
+      previousChoices = [];
+      generateMore();
+      showScreen("generator");
+      document.querySelector('[data-action="more"]').focus();
+    }
+
+    function generateMore() {
+      const nextChoices = pickGeneratorChoices(currentWord);
+      previousChoices = nextChoices;
+      renderGeneratorChoices(nextChoices);
+    }
+
+    function createChallengeOrder() {
+      const level = currentLevel();
+      let shuffled = shuffle(level.challenges);
+      let signature = shuffled.map((challenge) => challenge.category).join("|");
+
+      for (let attempt = 0; attempt < 8 && signature === lastChallengeSignature; attempt += 1) {
+        shuffled = shuffle(level.challenges);
+        signature = shuffled.map((challenge) => challenge.category).join("|");
+      }
+
+      lastChallengeSignature = signature;
+      return shuffled;
+    }
+
+    function startChallenge() {
+      challengeOrder = createChallengeOrder();
+      challengeIndex = 0;
+      renderChallenge();
+    }
+
+    function renderChallenge() {
+      currentChallenge = challengeOrder[challengeIndex];
+      currentChoiceOrder = shuffle(currentChallenge.choices);
+      challengeChoices.style.setProperty("--challenge-count", currentChoiceOrder.length);
+      roundCount.textContent = `Challenge ${challengeIndex + 1} of ${challengeOrder.length} • ${currentChallenge.category.toUpperCase()}`;
+      challengeSentence.innerHTML = highlightWord(currentChallenge.originalSentence, currentChallenge.boringWord, "boring-word");
+      challengeChoices.innerHTML = "";
+      tryAgain.textContent = "";
+      feedbackPanel.classList.remove("is-visible");
+
+      currentChoiceOrder.forEach((choice) => {
+        const button = document.createElement("button");
+        button.className = "choice-button";
+        button.type = "button";
+        button.textContent = choice;
+        button.dataset.choice = choice;
+        challengeChoices.appendChild(button);
+      });
+
+      showScreen("challenge");
+      document.querySelector(".choice-button").focus();
+    }
+
+    function chooseChallengeWord(button) {
+      const choice = button.dataset.choice;
+
+      if (choice !== currentChallenge.strongestChoice) {
+        button.classList.add("was-tried");
+        tryAgain.textContent = currentLevel().incorrectFeedback;
+        status.textContent = "Try again. Another word fits this sentence better.";
+        return;
+      }
+
+      tryAgain.textContent = "";
+      challengeSentence.innerHTML = highlightWord(currentChallenge.improvedSentence, currentChallenge.strongestChoice, "better-word");
+      improvedSentence.innerHTML = highlightWord(currentChallenge.improvedSentence, currentChallenge.strongestChoice, "better-word");
+      explanation.textContent = currentChallenge.explanation;
+      feedbackPanel.classList.add("is-visible");
+      challengeChoices.querySelectorAll("button").forEach((choiceButton) => {
+        choiceButton.disabled = true;
+      });
+      status.textContent = `Great choice. ${currentChallenge.explanation}`;
+      document.querySelector('[data-action="next-challenge"]').focus();
+    }
+
+    function nextChallenge() {
+      challengeIndex += 1;
+
+      if (challengeIndex >= challengeOrder.length) {
+        showScreen("completion");
+        document.querySelector('[data-action="play-again"]').focus();
+        return;
+      }
+
+      renderChallenge();
+    }
+
+    function showHome() {
+      currentWord = "";
+      previousChoices = [];
+      currentChallenge = null;
+      tryAgain.textContent = "";
+      feedbackPanel.classList.remove("is-visible");
+      showScreen("home");
+      document.querySelector('[data-action="start-generator"]').focus();
+    }
+
+    function showLevelScreen() {
+      currentWord = "";
+      previousChoices = [];
+      currentChallenge = null;
+      showScreen("level");
+      document.querySelector("[data-level]").focus();
+    }
+
+    levelGrid.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-level]");
+      if (!button) {
+        return;
+      }
+
+      chooseLevel(button.dataset.level);
+    });
+
+    wordGrid.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-word]");
+      if (!button) {
+        return;
+      }
+
+      showGenerator(button.dataset.word);
+    });
+
+    challengeChoices.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-choice]");
+      if (!button || button.disabled) {
+        return;
+      }
+
+      chooseChallengeWord(button);
+    });
+
+    document.addEventListener("click", (event) => {
+      const action = event.target.dataset.action;
+
+      if (action === "start-generator") {
+        showWordScreen();
+      }
+
+      if (action === "start-challenge" || action === "play-again") {
+        startChallenge();
+      }
+
+      if (action === "surprise-word") {
+        showGenerator(getRandomWord());
+      }
+
+      if (action === "surprise-generator") {
+        showGenerator(getRandomWord(currentWord));
+      }
+
+      if (action === "more") {
+        generateMore();
+      }
+
+      if (action === "choose-word") {
+        showWordScreen();
+      }
+
+      if (action === "next-challenge") {
+        nextChallenge();
+      }
+
+      if (action === "home") {
+        showHome();
+      }
+
+      if (action === "change-level") {
+        showLevelScreen();
+      }
+    });
+
+    buildLevelButtons();
+  </script>
+</body>
+</html>
