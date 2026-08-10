@@ -37,9 +37,10 @@
       margin: 0;
       color: var(--ink);
       background:
-        radial-gradient(circle at 12% 12%, rgba(255, 209, 102, 0.38) 0 14%, transparent 15%),
-        radial-gradient(circle at 88% 18%, rgba(15, 139, 141, 0.18) 0 11%, transparent 12%),
-        linear-gradient(135deg, #fffaf0 0%, #f3fbff 54%, #fff1ef 100%);
+        radial-gradient(circle at 4% 1%, rgba(255, 209, 102, 0.45) 0 16%, transparent 17%),
+        radial-gradient(circle at 96% 5%, rgba(105, 211, 232, 0.34) 0 14%, transparent 15%),
+        radial-gradient(circle at 98% 98%, rgba(154, 210, 71, 0.24) 0 17%, transparent 18%),
+        linear-gradient(135deg, #fffaf0 0%, #f5fcff 48%, #fff4f1 100%);
     }
 
     button {
@@ -88,12 +89,252 @@
       text-align: center;
     }
 
+    #level-screen .shell {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      padding: clamp(8px, 2vw, 20px);
+    }
+
+    #level-screen .shell::before,
+    #level-screen .shell::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    #level-screen .shell::before {
+      width: clamp(120px, 20vw, 250px);
+      aspect-ratio: 1;
+      left: 0;
+      bottom: clamp(30px, 6vw, 80px);
+      background:
+        linear-gradient(90deg, #f9be20 0 16%, transparent 16% 34%, #f9be20 34% 50%, transparent 50% 100%),
+        linear-gradient(#ffd45c, #f9a51c);
+      clip-path: polygon(38% 0, 58% 0, 66% 58%, 55% 88%, 42% 88%, 31% 58%);
+      filter: drop-shadow(0 8px 8px rgba(23, 32, 51, 0.18));
+      opacity: 0.92;
+      transform: rotate(11deg);
+    }
+
+    #level-screen .shell::after {
+      width: clamp(56px, 10vw, 110px);
+      height: clamp(56px, 10vw, 110px);
+      right: 4%;
+      bottom: 12%;
+      background: #158cf2;
+      clip-path: polygon(50% 0%, 62% 35%, 100% 35%, 69% 56%, 82% 94%, 50% 70%, 18% 94%, 31% 56%, 0% 35%, 38% 35%);
+      box-shadow: 0 8px 0 #0f65b6;
+      opacity: 0.9;
+      transform: rotate(-12deg);
+    }
+
+    .opening-hero {
+      position: relative;
+      min-height: clamp(360px, 54vw, 560px);
+      align-content: center;
+      justify-items: center;
+      overflow: hidden;
+      padding: clamp(24px, 5vw, 54px) clamp(16px, 5vw, 62px);
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 6% 10%, rgba(255, 209, 102, 0.56) 0 18%, transparent 19%),
+        radial-gradient(circle at 96% 10%, rgba(105, 211, 232, 0.28) 0 17%, transparent 18%),
+        radial-gradient(circle at 100% 100%, rgba(154, 210, 71, 0.24) 0 19%, transparent 20%),
+        rgba(255, 255, 255, 0.76);
+      box-shadow: var(--soft-shadow);
+      border: 3px solid rgba(23, 32, 51, 0.06);
+    }
+
+    .opening-hero::before,
+    .opening-hero::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
+    .opening-hero::before {
+      width: 110px;
+      height: 46px;
+      left: clamp(20px, 8vw, 110px);
+      top: clamp(28px, 7vw, 90px);
+      background:
+        linear-gradient(45deg, transparent 43%, #ef233c 44% 55%, transparent 56%),
+        linear-gradient(-45deg, transparent 43%, #ef233c 44% 55%, transparent 56%),
+        repeating-linear-gradient(0deg, transparent 0 12px, rgba(79, 93, 117, 0.24) 13px 14px);
+      border: 5px solid rgba(23, 32, 51, 0.55);
+      border-radius: 8px;
+      box-shadow: 0 8px 0 rgba(23, 32, 51, 0.12);
+      transform: rotate(-11deg);
+    }
+
+    .opening-hero::after {
+      width: 120px;
+      height: 64px;
+      right: clamp(10px, 6vw, 110px);
+      bottom: clamp(36px, 7vw, 86px);
+      border: 5px dashed rgba(61, 126, 255, 0.68);
+      border-left-color: transparent;
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      transform: rotate(24deg);
+    }
+
+    .opening-doodles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .doodle {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      font-weight: 950;
+      line-height: 1;
+      filter: drop-shadow(0 4px 0 rgba(23, 32, 51, 0.12));
+    }
+
+    .doodle.star {
+      width: 34px;
+      height: 34px;
+      background: #f7b801;
+      clip-path: polygon(50% 0%, 62% 35%, 100% 35%, 69% 56%, 82% 94%, 50% 70%, 18% 94%, 31% 56%, 0% 35%, 38% 35%);
+    }
+
+    .doodle.dot {
+      width: 13px;
+      height: 13px;
+      border-radius: 999px;
+      background: #87c700;
+    }
+
+    .doodle.ray {
+      width: 58px;
+      height: 42px;
+      background:
+        linear-gradient(72deg, transparent 0 42%, #1b8feb 43% 51%, transparent 52%),
+        linear-gradient(106deg, transparent 0 42%, #1b8feb 43% 51%, transparent 52%),
+        linear-gradient(140deg, transparent 0 42%, #1b8feb 43% 51%, transparent 52%);
+    }
+
+    .doodle.one {
+      left: 8%;
+      top: 14%;
+      background: #1b8feb;
+    }
+
+    .doodle.two {
+      right: 10%;
+      top: 16%;
+      background: #8e6dd8;
+    }
+
+    .doodle.three {
+      left: 18%;
+      bottom: 20%;
+    }
+
+    .doodle.four {
+      right: 20%;
+      bottom: 22%;
+      background: #ff7a00;
+    }
+
+    .doodle.five {
+      left: 33%;
+      top: 18%;
+    }
+
     h1 {
       margin: 0;
       font-size: clamp(2.8rem, 8vw, 6.4rem);
       line-height: 0.93;
       letter-spacing: 0;
       color: var(--ink);
+    }
+
+    .brand-logo {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 0;
+      width: min(620px, 100%);
+      margin: 0 auto;
+      text-transform: uppercase;
+      transform: rotate(-1deg);
+    }
+
+    .brand-word {
+      display: block;
+      color: var(--word-color);
+      font-size: clamp(3.8rem, 11vw, 7.6rem);
+      line-height: 0.84;
+      font-weight: 950;
+      text-shadow:
+        0 5px 0 #ffffff,
+        0 9px 0 #081a3a,
+        0 14px 18px rgba(23, 32, 51, 0.2);
+      -webkit-text-stroke: clamp(2px, 0.5vw, 5px) #081a3a;
+      paint-order: stroke fill;
+    }
+
+    .brand-word.ban {
+      --word-color: #f1192a;
+    }
+
+    .brand-word.boring {
+      --word-color: #168bf2;
+    }
+
+    .brand-word.words {
+      --word-color: #8ac915;
+    }
+
+    .word-bubbles {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 6px 0 0;
+    }
+
+    .word-bubble {
+      padding: 10px 18px 12px;
+      border-radius: 999px;
+      color: var(--white);
+      font-size: clamp(1.02rem, 2.2vw, 1.42rem);
+      line-height: 1;
+      font-weight: 950;
+      box-shadow:
+        inset 0 3px 0 rgba(255, 255, 255, 0.38),
+        0 8px 0 var(--bubble-shadow),
+        0 13px 18px rgba(23, 32, 51, 0.16);
+      transform: rotate(var(--bubble-tilt));
+    }
+
+    .word-bubble.purple {
+      --bubble-shadow: #6731a9;
+      --bubble-tilt: -3deg;
+      background: #a64df1;
+    }
+
+    .word-bubble.orange {
+      --bubble-shadow: #b95600;
+      --bubble-tilt: 2deg;
+      background: #ff8a00;
+    }
+
+    .word-bubble.teal {
+      --bubble-shadow: #04756e;
+      --bubble-tilt: -2deg;
+      background: #14b8a6;
     }
 
     .subtitle {
@@ -103,6 +344,15 @@
       font-weight: 800;
     }
 
+    .opening-hero .subtitle {
+      position: relative;
+      z-index: 1;
+      margin-top: clamp(6px, 1.4vw, 14px);
+      color: #08756f;
+      font-size: clamp(1.45rem, 3.6vw, 2.35rem);
+      text-shadow: 0 2px 0 rgba(255, 255, 255, 0.9);
+    }
+
     .explain {
       max-width: 760px;
       margin: 6px auto 0;
@@ -110,6 +360,15 @@
       font-size: clamp(1.05rem, 2.1vw, 1.35rem);
       line-height: 1.45;
       font-weight: 650;
+    }
+
+    .opening-hero .explain {
+      position: relative;
+      z-index: 1;
+      margin-top: 0;
+      color: #34425d;
+      font-size: clamp(1.05rem, 2.4vw, 1.45rem);
+      font-weight: 850;
     }
 
     .level-grid,
@@ -133,6 +392,33 @@
       text-align: left;
     }
 
+    .level-card {
+      position: relative;
+      overflow: hidden;
+      min-height: clamp(210px, 24vw, 270px);
+      border-top-width: 8px;
+      background:
+        radial-gradient(circle at 86% 18%, rgba(105, 211, 232, 0.34) 0 9%, transparent 10%),
+        radial-gradient(circle at 72% 58%, rgba(255, 209, 102, 0.36) 0 4%, transparent 5%),
+        var(--white);
+      transform: translateZ(0);
+    }
+
+    .level-card::after {
+      content: "";
+      position: absolute;
+      width: 92px;
+      height: 54px;
+      right: 22px;
+      top: 34px;
+      border: 5px solid rgba(15, 139, 141, 0.28);
+      border-left: 0;
+      border-bottom: 0;
+      border-radius: 50%;
+      transform: rotate(22deg);
+      pointer-events: none;
+    }
+
     .level-card:first-child,
     .activity-card:first-child {
       border-top-color: var(--teal);
@@ -141,6 +427,55 @@
     .level-card:last-child,
     .activity-card:last-child {
       border-top-color: var(--coral);
+    }
+
+    .level-card:last-child {
+      background:
+        radial-gradient(circle at 86% 18%, rgba(255, 107, 95, 0.18) 0 10%, transparent 11%),
+        radial-gradient(circle at 72% 58%, rgba(255, 209, 102, 0.36) 0 4%, transparent 5%),
+        var(--white);
+    }
+
+    .level-card:last-child::after {
+      border-color: rgba(255, 107, 95, 0.28);
+    }
+
+    .level-card-heading {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .level-badge {
+      flex: 0 0 auto;
+      width: clamp(58px, 8vw, 72px);
+      height: clamp(58px, 8vw, 72px);
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--teal);
+      color: var(--white);
+      box-shadow:
+        inset 0 4px 0 rgba(255, 255, 255, 0.22),
+        0 7px 0 var(--teal-dark),
+        0 12px 18px rgba(23, 32, 51, 0.16);
+      font-size: clamp(1.2rem, 2vw, 1.55rem);
+      font-weight: 950;
+    }
+
+    .level-card:last-child .level-badge {
+      background: var(--coral);
+      box-shadow:
+        inset 0 4px 0 rgba(255, 255, 255, 0.24),
+        0 7px 0 var(--coral-dark),
+        0 12px 18px rgba(23, 32, 51, 0.16);
+    }
+
+    .level-card .action-button {
+      position: relative;
+      z-index: 1;
     }
 
     .level-card h2,
@@ -547,6 +882,14 @@
         grid-template-columns: 1fr;
       }
 
+      .opening-hero {
+        min-height: auto;
+      }
+
+      .opening-hero::before {
+        opacity: 0.28;
+      }
+
       .word-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
@@ -555,6 +898,30 @@
     @media (max-width: 560px) {
       .app {
         align-items: start;
+      }
+
+      #level-screen .shell {
+        padding: 0;
+      }
+
+      #level-screen .shell::before,
+      #level-screen .shell::after,
+      .opening-doodles,
+      .opening-hero::before,
+      .opening-hero::after {
+        display: none;
+      }
+
+      .opening-hero {
+        padding: 24px 14px;
+      }
+
+      .brand-word {
+        font-size: clamp(3rem, 18vw, 4.8rem);
+      }
+
+      .level-card-heading {
+        align-items: flex-start;
       }
 
       .word-grid,
@@ -587,8 +954,24 @@
   <main class="app">
     <section class="screen is-active" id="level-screen" aria-labelledby="page-title">
       <div class="shell">
-        <div class="hero">
-          <h1 id="page-title">Ban Boring Words</h1>
+        <div class="hero opening-hero">
+          <div class="opening-doodles" aria-hidden="true">
+            <span class="doodle star one"></span>
+            <span class="doodle star two"></span>
+            <span class="doodle dot three"></span>
+            <span class="doodle dot four"></span>
+            <span class="doodle ray five"></span>
+          </div>
+          <h1 class="brand-logo" id="page-title" aria-label="Ban Boring Words">
+            <span class="brand-word ban">Ban</span>
+            <span class="brand-word boring">Boring</span>
+            <span class="brand-word words">Words</span>
+          </h1>
+          <div class="word-bubbles" aria-hidden="true">
+            <span class="word-bubble purple">whispered</span>
+            <span class="word-bubble orange">enormous</span>
+            <span class="word-bubble teal">thrilled</span>
+          </div>
           <p class="subtitle">Give tired words a vocabulary makeover!</p>
           <p class="explain">Choose a vocabulary level to begin.</p>
         </div>
@@ -919,9 +1302,12 @@
         const card = document.createElement("article");
         card.className = "level-card";
         card.innerHTML = `
-          <div>
-            <h2>${level.label}</h2>
-            <p>${level.grades}</p>
+          <div class="level-card-heading">
+            <span class="level-badge" aria-hidden="true">${level.label.replace("Level ", "L")}</span>
+            <div>
+              <h2>${level.label}</h2>
+              <p>${level.grades}</p>
+            </div>
           </div>
           <button class="action-button" type="button" data-level="${levelKey}">Choose ${level.label}</button>
         `;
