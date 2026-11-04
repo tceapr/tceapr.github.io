@@ -1,5 +1,9 @@
-# Skyline Sleuths
+# TCEA Learning Activities Hub
 
-Skyline Sleuths is a classroom-friendly geography mystery game. Students study a skyline, reveal clues one at a time, and try to identify the city before the point value drops.
+This repository powers the root landing page at [tceapr.github.io](https://tceapr.github.io/). It provides a searchable directory for the classroom activities hosted across the TCEA GitHub Pages collection.
 
-This first prototype includes one complete city round using the local `chicago.png` image. More rounds can be added by editing the `cities` array in `script.js`.
+The hub uses plain HTML, CSS, and JavaScript. It requires no build step, student login, or external dependency.
+
+The `ban-boring-words/` activity remains in this repository. Skyline Sleuths is maintained in the separate `tceapr/skylineslueths` repository and is linked from the hub.
+
+Unless an individual activity states otherwise, resources are shared under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
