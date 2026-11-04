@@ -1,6 +1,8 @@
-# TCEA Learning Activities Hub
+# Playfully Curious Learning Lab
 
-This repository powers the root landing page at [tceapr.github.io](https://tceapr.github.io/). It provides a searchable directory for the classroom activities hosted across the TCEA GitHub Pages collection.
+This repository powers the **Playfully Curious Learning Lab** at [tceapr.github.io](https://tceapr.github.io/): a searchable directory for browser-based classroom activities.
+
+**Explore. Play. Think. Discover.**
 
 The hub uses plain HTML, CSS, and JavaScript. It requires no build step, student login, or external dependency.
 
