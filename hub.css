@@ -349,6 +349,8 @@ input[type="search"]::placeholder { color: #778d84; }
 .skyline { background: #dceef6; }
 .tech { padding: 0; background: #20113d; }
 .tech img { object-fit: cover; }
+.theme-park { padding: 0; background: #79ddff; }
+.theme-park svg { display: block; width: 100%; height: 100%; object-fit: cover; }
 .thanks {
   padding: 34px;
   background: radial-gradient(circle at 18% 16%, #fff4ce, #f6dfa8 72%);
