@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3x3 Exit Ticket</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23174778'/%3E%3Cpath d='M14 17h36v8H14zm0 12h36v8H14zm0 12h36v8H14z' fill='%23FAA734'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="tool-panel" aria-labelledby="app-title">
+        <div class="masthead">
+          <div>
+            <p class="eyebrow">Teacher-Built Sorting Check</p>
+            <h1 id="app-title">3x3 Exit Ticket</h1>
+          </div>
+          <div class="status-pill">No logins · No data collected</div>
+        </div>
+
+        <section id="builder-view" class="builder-view" aria-labelledby="builder-title">
+          <div class="intro-grid">
+            <div>
+              <h2 id="builder-title">Build your own exit ticket.</h2>
+              <p>
+                Create three categories with three matching items each. The student link opens directly to a shuffled
+                3x3 sorting activity.
+              </p>
+            </div>
+            <div class="teacher-note">
+              <strong>Teacher Directions</strong>
+              <ol>
+                <li>Enter all three category names and all nine items.</li>
+                <li>Preview the activity or create a student link.</li>
+                <li>Share the copied link with students or embed it in your site.</li>
+              </ol>
+            </div>
+          </div>
+
+          <form id="ticket-form" novalidate>
+            <div class="field-grid">
+              <label class="field-label" for="ticket-title">Exit Ticket Title</label>
+              <input id="ticket-title" name="ticket-title" type="text" autocomplete="off" placeholder="Ecosystem Connections" />
+
+              <label class="field-label" for="ticket-directions">Optional Directions</label>
+              <textarea
+                id="ticket-directions"
+                name="ticket-directions"
+                rows="3"
+                placeholder="Add a class-specific reminder or prompt."
+              ></textarea>
+            </div>
+
+            <div class="category-grid" aria-label="Exit ticket categories">
+              <fieldset class="category-card">
+                <legend>Category 1</legend>
+                <label for="category-1-name">Category Name</label>
+                <input id="category-1-name" name="category-1-name" type="text" autocomplete="off" />
+                <div class="item-fields">
+                  <label for="category-1-item-1">Item 1</label>
+                  <input id="category-1-item-1" name="category-1-item-1" type="text" autocomplete="off" />
+                  <label for="category-1-item-2">Item 2</label>
+                  <input id="category-1-item-2" name="category-1-item-2" type="text" autocomplete="off" />
+                  <label for="category-1-item-3">Item 3</label>
+                  <input id="category-1-item-3" name="category-1-item-3" type="text" autocomplete="off" />
+                </div>
+              </fieldset>
+
+              <fieldset class="category-card">
+                <legend>Category 2</legend>
+                <label for="category-2-name">Category Name</label>
+                <input id="category-2-name" name="category-2-name" type="text" autocomplete="off" />
+                <div class="item-fields">
+                  <label for="category-2-item-1">Item 1</label>
+                  <input id="category-2-item-1" name="category-2-item-1" type="text" autocomplete="off" />
+                  <label for="category-2-item-2">Item 2</label>
+                  <input id="category-2-item-2" name="category-2-item-2" type="text" autocomplete="off" />
+                  <label for="category-2-item-3">Item 3</label>
+                  <input id="category-2-item-3" name="category-2-item-3" type="text" autocomplete="off" />
+                </div>
+              </fieldset>
+
+              <fieldset class="category-card">
+                <legend>Category 3</legend>
+                <label for="category-3-name">Category Name</label>
+                <input id="category-3-name" name="category-3-name" type="text" autocomplete="off" />
+                <div class="item-fields">
+                  <label for="category-3-item-1">Item 1</label>
+                  <input id="category-3-item-1" name="category-3-item-1" type="text" autocomplete="off" />
+                  <label for="category-3-item-2">Item 2</label>
+                  <input id="category-3-item-2" name="category-3-item-2" type="text" autocomplete="off" />
+                  <label for="category-3-item-3">Item 3</label>
+                  <input id="category-3-item-3" name="category-3-item-3" type="text" autocomplete="off" />
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="builder-actions">
+              <button id="preview-ticket" type="button">Preview</button>
+              <button id="create-link" class="secondary" type="button">Create Student Link</button>
+              <button id="clear-form" class="ghost" type="button">Clear</button>
+            </div>
+
+            <div id="builder-message" class="message" role="status" aria-live="polite"></div>
+
+            <div id="link-panel" class="link-panel" hidden>
+              <label class="field-label" for="student-link">Student Link</label>
+              <div class="copy-row">
+                <input id="student-link" type="text" readonly />
+                <button id="copy-link" type="button">Copy Link</button>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <section id="student-view" class="student-view" aria-labelledby="student-title" hidden>
+          <div class="student-header">
+            <div>
+              <p class="eyebrow">Student Activity</p>
+              <h2 id="student-title">3x3 Exit Ticket</h2>
+              <p id="student-directions" class="student-directions">
+                Find three items that belong together. Select all three, then submit your group.
+              </p>
+              <p id="teacher-directions" class="teacher-directions-text" hidden></p>
+            </div>
+            <div id="progress-pill" class="status-pill">0 of 3 groups found</div>
+          </div>
+
+          <div id="feedback" class="message" role="status" aria-live="polite"></div>
+
+          <div id="completed-groups" class="completed-groups" aria-live="polite"></div>
+
+          <div id="card-grid" class="card-grid" aria-label="Exit ticket item cards"></div>
+
+          <div class="student-actions">
+            <button id="submit-group" type="button" disabled>Submit Group</button>
+            <button id="back-to-builder" class="ghost teacher-only-action" type="button" hidden>Back to Builder</button>
+          </div>
+
+          <section id="complete-panel" class="complete-panel" hidden>
+            <h3>Exit Ticket Complete!</h3>
+            <p>You found all three connections.</p>
+            <label class="field-label" for="reflection">What helped you recognize the connections?</label>
+            <textarea id="reflection" rows="4" placeholder="Type your reflection here. It stays on this device only."></textarea>
+          </section>
+        </section>
+
+        <footer>
+          A TCEA educator resource · Free to use and adapt with credit · No logins · No data collected
+        </footer>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
