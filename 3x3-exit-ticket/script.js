@@ -421,6 +421,30 @@ function clearForm() {
   setMessage(builderMessage, "");
 }
 
+function loadExample() {
+  clearForm();
+
+  document.querySelector("#ticket-title").value = "Equivalent Fractions";
+  document.querySelector("#ticket-directions").value =
+    "Find the three fractions that are equivalent to the fraction named in each group. Select the three cards, then submit your group.";
+
+  const groups = [
+    { name: "Equivalent to 1/2", items: ["2/4", "4/8", "5/10"] },
+    { name: "Equivalent to 1/3", items: ["1/3", "2/6", "3/9"] },
+    { name: "Equivalent to 3/4", items: ["3/4", "6/8", "9/12"] },
+  ];
+
+  groups.forEach((group, groupIndex) => {
+    const category = groupIndex + 1;
+    document.querySelector(`#category-${category}-name`).value = group.name;
+    group.items.forEach((item, itemIndex) => {
+      document.querySelector(`#category-${category}-item-${itemIndex + 1}`).value = item;
+    });
+  });
+
+  setMessage(builderMessage, "Example loaded. Edit any field, preview the activity, or create a student link.", "success");
+}
+
 function loadTicketFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const encodedTicket = params.get(ticketParam);
@@ -438,6 +462,7 @@ function loadTicketFromUrl() {
   startTicket(ticket, { preview: false });
 }
 
+document.querySelector("#load-example")?.addEventListener("click", loadExample);
 previewButton.addEventListener("click", handlePreview);
 createLinkButton.addEventListener("click", handleCreateLink);
 clearButton.addEventListener("click", clearForm);
